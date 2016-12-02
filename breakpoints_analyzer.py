@@ -2,6 +2,7 @@
 
 import os
 import argparse
+import itertools
 
 import model
 import utils
@@ -86,13 +87,26 @@ if __name__ == '__main__':
             specie2_grouped = []
             #group entries in specie2 according to order of blocks on chromosomes
             #in specie1
+            visited_blocks = set()
             for sp in specie1:
                 specie2_grouped.append([])
                 for y in sp:
+                    if y.block_id in visited_blocks:
+                        continue
                     c = filter(lambda x: x.block_id == y.block_id, entries)
-                    specie2_grouped[-1].append(c)
-                    if not c:
-                        print y.block_id
+                    visited_blocks.add(y.block_id)
+                    if len(c) == 1:
+                        specie2_grouped[-1].append(c)
+                    elif len(c) > 1:
+                    #now let's order the blocks that are duplicated on the same chromosome
+                        print c
+                        c_grouped_same_chrom = [list(v) for k,v in itertools.groupby(c,key=lambda x:x.seq_id)]
+                        print c_grouped_same_chrom
+                        c_grouped_same_chrom = map(lambda l: sorted(l, key=lambda y: y.start), c_grouped_same_chrom)
+                        c_grouped_same_chrom = list(itertools.product(*c_grouped_same_chrom))
+                        specie2_grouped[-1] += c_grouped_same_chrom
+                    elif not c:
+                        print 'no such blocks in the second species', y.block_id
             specie2_rear = []
             cnt_empty = 0
             for e in specie2_grouped:
@@ -105,11 +119,11 @@ if __name__ == '__main__':
             for c in specie2_rear:
                 if args.report_transpositions:
                     trp = rearrangements_type.check_transpositions(c)
-                    #it works but fix utils.find_prev_block_in_specie and
-                    # utils.find_next_block_in_specie in case there are duplications
                     this_trp = []
                     to_start = -1
                     to_end = -2
+                    for e in trp:
+                        e[1].print_out()
                     for e in trp:
                         this_prev = e[0]
                         this_trp.append(e[1])
@@ -133,6 +147,9 @@ if __name__ == '__main__':
                             to_start = -1
                             to_end = -2
                             this_trp = []
+                    #print 'transposition:'
+                    #for t in this_trp:
+                    #    t.print_out()
                 if args.report_translocations:
                     main_chrom, trl = rearrangements_type.check_translocations(c)
                     for e in trl:

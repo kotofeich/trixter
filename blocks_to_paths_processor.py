@@ -121,12 +121,11 @@ class BlocksToPathsProcessor:
             print '---'
         '''
         edges = BlocksToPathsProcessor.__find_graph_edges(entries)
-        '''
+
         print 'edges:'
         for e in edges:
             print e[0].print_out(), e[1].print_out(), e[2]
             print
-        '''
         threads = []
         for e in entries[0]:
             #-1 because max level number is len(entries)-1
@@ -136,6 +135,14 @@ class BlocksToPathsProcessor:
             if len(entries) == 1:
                 max_level = 0
             path = BlocksToPathsProcessor.__dfs(e, edges, 0, max_level)
+            '''
+            for e in path:
+                for x in e:
+                    print 'edge:'
+                    x[0].print_out()
+                    x[1].print_out()
+                print 'fin'
+            '''
             if len(path) > 1:
                 path = BlocksToPathsProcessor.try_merge(path)
                 if len(path) == 1:
