@@ -64,12 +64,14 @@ def check_transpositions(c):
         c_seq_id_sorted = sorted(c_seq_id, key = lambda x: x.start)
         if c_seq_id == c_seq_id_sorted or c_seq_id == c_seq_id_sorted[::-1]:
             continue
+        '''
         print 'fc:'
         for x in c_seq_id:
             x.print_out() 
         print 'fc sorted according pt:'
         for x in c_seq_id_sorted:
             x.print_out()
+        '''
         transpositions_up = check_order(c_seq_id, c_seq_id_sorted)
         transpositions_down = check_order(c_seq_id, c_seq_id_sorted[::-1])
         if len(transpositions_up) <= len(transpositions_down):
@@ -105,10 +107,11 @@ for uniformity and for being able to report the breakpoints if needed
 '''
 def check_translocations(c):
     c_seq_ids =[]
-    for e in itertools.groupby(c, lambda x: x.seq_id):
+    c_sorted = sorted(c, key=lambda x:x.seq_id)
+    for e in itertools.groupby(c_sorted, lambda x: x.seq_id):
         c_seq_ids.append(list(e[1]))
     lengths = map(lambda y: sum(map(lambda x: math.fabs(int(x.end)-int(x.start)), y)), c_seq_ids)
-    ls = zip(lengths, c_seq_ids)
+    ls = list(zip(lengths, c_seq_ids))
     ls_sorted = sorted(ls, key=lambda x: x[0])
     translocations = map(lambda x: x[1], ls_sorted[:-1])
     main_chrom = ls_sorted[-1][1][0].get_chrom()
