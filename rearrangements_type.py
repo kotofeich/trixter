@@ -99,8 +99,8 @@ def check_transpositions(c):
 
 '''
 translocation is a change of the genomic position to another chromosome
-choose the one interpretation that corresponds to less translocations (by length)
-generally the translocations can be counted without information about previous entries
+the main chromosome is the one that corresponds to less translocations (by length)
+generally translocations can be counted without information about previous entries
 because they are already grouped into lists of unbroken segments of blocks.
 however we report translocations in the same manner as reversals and transpositions
 for uniformity and for being able to report the breakpoints if needed
@@ -115,6 +115,8 @@ def check_translocations(c):
     ls_sorted = sorted(ls, key=lambda x: x[0])
     translocations = map(lambda x: x[1], ls_sorted[:-1])
     main_chrom = ls_sorted[-1][1][0].get_chrom()
+    trs_prev = get_previous_entries(translocations, c)
+    trs_next = get_next_entries(translocations, c)
     '''
     for e in ls_sorted:
         print e[0]

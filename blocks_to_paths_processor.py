@@ -10,6 +10,13 @@ class BlocksToPathsProcessor:
         i = 0
         j = 1
         edges = []
+        '''
+        print 'entries for making edges'
+        for e in entries:
+            for x in e:
+                x.print_out()
+            print
+        '''
         while i < len(entries) - 1:
             v = entries[i]
             v_next = entries[i+1]
@@ -121,11 +128,14 @@ class BlocksToPathsProcessor:
             print '---'
         '''
         edges = BlocksToPathsProcessor.__find_graph_edges(entries)
-
+        '''
         print 'edges:'
         for e in edges:
-            print e[0].print_out(), e[1].print_out(), e[2]
+            e[0].print_out()
+            e[1].print_out()
+            print e[2]
             print
+        '''
         threads = []
         for e in entries[0]:
             #-1 because max level number is len(entries)-1

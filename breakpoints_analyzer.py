@@ -3,6 +3,7 @@
 import os
 import argparse
 import itertools
+from collections import defaultdict
 
 import model
 import utils
@@ -29,7 +30,6 @@ if __name__ == '__main__':
     parser.add_argument('--report_transpositions', action='store_true', help='report transpositions in specie2 related to specie1')
     parser.add_argument('--report_translocations', action='store_true', help='report translocations in specie2 related to specie1')
     parser.add_argument('--report_reversals', action='store_true', help='report reversals in specie2 related to specie1')
-    parser.add_argument('--report_duplications', action='store_true', help='search for duplications in each of --species')
     parser.add_argument('--species', nargs='+', help='species to check')
     
     parser.add_argument('--classify_breakpoints', action='store_true', help='find out which species contain breakpoint')
@@ -49,27 +49,8 @@ if __name__ == '__main__':
             breakpoints_classifier.run(blocks, True)
         else:
             breakpoints_classifier.run(blocks, False)
-    elif args.report_duplications:
-    #TODO: this should be updated because its a rude estimation
-    #some blocks should be counted as as one duplication
-            for sp in args.species:
-                entries = utils.get_specie_entries(blocks, sp)
-                entries = utils.thread_specie_genome(entries)
-                for c in entries:
-                    count_dup = 0
-                    dup = rearrangements_type.check_duplications(c, blocks, sp)
-                    for e in dup:
-                        this_prev = e[0]
-                        this_dup = e[1]
-                        if not this_prev in map(lambda x:x[1], dup):
-                            count_dup += 1
-                        print 'duplication:',
-                        this_dup.print_out()
-                    if count_dup:
-                        print 'overall duplications', count_dup
 
-    elif args.report_translocations or args.report_transpositions or args.report_reversals\
-             or args.report_duplications:
+    elif args.report_translocations or args.report_transpositions or args.report_reversals:
             if len(args.species) != 2:
                 raise Exception("Can evaluate rearrangements only between two species")
             blocks = utils.filter_unsplitted_chromosomes(blocks, count_chrs, args.species)
@@ -80,33 +61,33 @@ if __name__ == '__main__':
             #Tfor testing purposes
             #Ttest_path = '/Users/admin/projects/felidae_comp/analysis/synteny/solenodon/1000/'
             #Tprint_out_genome_thread(args.species[0],specie1,os.path.join(test_path,'tmp1'))
-            entries = utils.get_specie_entries(blocks, args.species[1])
+            entries2 = utils.get_specie_entries(blocks, args.species[1])
             #Tprint_out_genome_thread(args.species[1],utils.thread_specie_genome(entries),os.path.join(test_path,'tmp2'))
             #Texit()
-            specie2 = utils.thread_specie_genome(entries)
+            specie2 = utils.thread_specie_genome(entries2)
             specie2_grouped = []
-            #group entries in specie2 according to order of blocks on chromosomes
-            #in specie1
+            #group entries in specie2 according to the order of blocks on chromosomes in specie1
             visited_blocks = set()
             for sp in specie1:
                 specie2_grouped.append([])
                 for y in sp:
                     if y.block_id in visited_blocks:
                         continue
-                    c = filter(lambda x: x.block_id == y.block_id, entries)
+                    c = filter(lambda x: x.block_id == y.block_id, entries2)
                     visited_blocks.add(y.block_id)
                     if len(c) == 1:
                         specie2_grouped[-1].append(c)
                     elif len(c) > 1:
+                        raise 'duplicated block in', species[1]
+                    elif not c:
+                        print 'no such blocks ', y.block_id, 'in specie', species[1]
+                    '''
                     #now let's order the blocks that are duplicated on the same chromosome
-                        print c
                         c_grouped_same_chrom = [list(v) for k,v in itertools.groupby(c,key=lambda x:x.seq_id)]
-                        print c_grouped_same_chrom
                         c_grouped_same_chrom = map(lambda l: sorted(l, key=lambda y: y.start), c_grouped_same_chrom)
                         c_grouped_same_chrom = list(itertools.product(*c_grouped_same_chrom))
                         specie2_grouped[-1] += c_grouped_same_chrom
-                    elif not c:
-                        print 'no such blocks in the second species', y.block_id
+                    '''
             specie2_rear = []
             cnt_empty = 0
             for e in specie2_grouped:
@@ -114,7 +95,7 @@ if __name__ == '__main__':
                 if not p:
                     cnt_empty += 1
                 specie2_rear.append(p)
-            print 'unresolved:', cnt_empty
+            print 'unresolved paths (chromosomes):', cnt_empty
             specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
             for c in specie2_rear:
                 if args.report_transpositions:
@@ -122,8 +103,6 @@ if __name__ == '__main__':
                     this_trp = []
                     to_start = -1
                     to_end = -2
-                    for e in trp:
-                        e[1].print_out()
                     for e in trp:
                         this_prev = e[0]
                         this_trp.append(e[1])
@@ -148,8 +127,8 @@ if __name__ == '__main__':
                             to_end = -2
                             this_trp = []
                     #print 'transposition:'
-                    #for t in this_trp:
-                    #    t.print_out()
+                    #for t in trp:
+                    #    t[1].print_out()
                 if args.report_translocations:
                     main_chrom, trl = rearrangements_type.check_translocations(c)
                     for e in trl:

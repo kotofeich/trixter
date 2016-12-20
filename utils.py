@@ -125,60 +125,26 @@ def filter_absent_species(blocks, sps):
 #there can be ambiguities in prev entries
 def find_prev_block_in_specie(entry,specie):
     for c in specie:
-        find = filter(lambda x: x.block_id == entry.block_id, c)
+        find = filter(lambda x: x.block_id == entry.block_id and x.start == entry.start, c)
         if len(find) > 1:
-            raise Exeption('duplicated entry!')
+            raise 'duplicated entry!'
         if find:
             l = c.index(find[0])
             if l == 0:
                 return None
             return c[l-1] 
-    raise Exeption('No such block! ' + entry.block_id)
+    raise 'No such block! ', entry.block_id
 
 #must be fixed: in case of duplications in a genome
 #there can be ambiguities in next entries
 def find_next_block_in_specie(entry,specie):
     for c in specie:
-        find = filter(lambda x: x.block_id == entry.block_id, c)
+        find = filter(lambda x: x.block_id == entry.block_id and x.start == entry.start, c)
         if len(find) > 1:
-            raise Exeption('duplicated entry!') 
+            raise 'duplicated entry!' 
         if find:
             l = c.index(find[0])
             if l == len(c)-1:
                 return None
             return c[l+1] 
-    raise Exeption('No such block! ' + entry.block_id)
-
-def output_for_circos(blocks, species, prefixes, old_prefixes, output):
-    old_prefix='|'.join(old_prefixes)
-    with open(output,'w') as f:
-        for b in blocks:
-            e = b.entries
-            e1 = filter(lambda x: x.seq_id.split('.')[0] == species[0], e)
-            if e1:
-                e1 = e1[0]
-                id = [s.strip() for s in re.split(old_prefix, e1.seq_id.split('.')[1])][1]
-                name1 = prefixes[0]+id
-                if e1.strand == '+':
-                    start1 = e1.start
-                    end1 = e1.end
-                else:
-                    end1 = e1.start
-                    start1 = e1.end
-                f.write(name1 + ' ' + str(start1) + ' ' + str(end1)) 
-            e2 = filter(lambda x: x.seq_id.split('.')[0] == species[1], e)
-            if e2:
-                e2 = e2[0]
-                id = [s.strip() for s in re.split(old_prefix, e2.seq_id.split('.')[1])][1]
-                name2 = prefixes[1]+id
-                if e2.strand == '+':
-                    start2 = e2.start
-                    end2 = e2.end
-                else:
-                    end2 = e2.start
-                    start2 = e2.end
-                if e1:
-                    f.write(' ')
-                f.write(name2 + ' ' + str(start2) + ' ' + str(end2)+ '\n')
-            elif e1:
-                f.write('\n')
+    raise 'No such block! ', entry.block_id
