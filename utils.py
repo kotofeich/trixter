@@ -71,6 +71,16 @@ def normalize(specie1, specie2):
             #print c1
             #print c2
             continue
+        '''
+        if len(c1) != len(c2):
+            for e in zip(c1,c2):
+                e[0].print_out()
+                e[1].print_out()
+                print
+            print 'last:'
+            for e in c1[-(len(c1)-len(c2)):]:
+                e.print_out()
+        '''
         for j in range(len(c1)):
             if c1[j].strand == '-':
                 c1[j].strand = '+'

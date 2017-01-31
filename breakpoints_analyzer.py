@@ -73,6 +73,8 @@ if __name__ == '__main__':
                 for y in sp:
                     if y.block_id in visited_blocks:
                         continue
+                    if len(filter(lambda a:a.block_id==y.block_id, sp)) > 1:
+                        raise Exception('duplicated block in', args.species[0])
                     c = filter(lambda x: x.block_id == y.block_id, entries2)
                     visited_blocks.add(y.block_id)
                     if len(c) == 1:
