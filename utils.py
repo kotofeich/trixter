@@ -98,7 +98,7 @@ def filter_unsplitted_chromosomes(blocks, count_chrs, sps):
                     upd_entries.append(e)
                     upd_species.add(specie)
         #also count duplications?
-        #if so than only blocks when both chromosomes are split counted
+        #if so then only blocks when both chromosomes are split counted
         if len(upd_entries) >= len(sps) and len(upd_species) == len(sps):
         #if len(upd_entries) == 1:
         

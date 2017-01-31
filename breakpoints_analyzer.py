@@ -78,9 +78,9 @@ if __name__ == '__main__':
                     if len(c) == 1:
                         specie2_grouped[-1].append(c)
                     elif len(c) > 1:
-                        raise 'duplicated block in', species[1]
+                        raise Exception('duplicated block in', args.species[1])
                     elif not c:
-                        print 'no such blocks ', y.block_id, 'in specie', species[1]
+                        print 'no such blocks ', y.block_id, 'in specie', args.species[1]
                     '''
                     #now let's order the blocks that are duplicated on the same chromosome
                         c_grouped_same_chrom = [list(v) for k,v in itertools.groupby(c,key=lambda x:x.seq_id)]

@@ -115,8 +115,8 @@ def check_translocations(c):
     ls_sorted = sorted(ls, key=lambda x: x[0])
     translocations = map(lambda x: x[1], ls_sorted[:-1])
     main_chrom = ls_sorted[-1][1][0].get_chrom()
-    trs_prev = get_previous_entries(translocations, c)
-    trs_next = get_next_entries(translocations, c)
+    #trs_prev = get_previous_entries(translocations, c)
+    #trs_next = get_next_entries(translocations, c)
     '''
     for e in ls_sorted:
         print e[0]
