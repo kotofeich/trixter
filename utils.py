@@ -56,6 +56,53 @@ def thread_specie_genome(specie_entries):
         sorted_chromosomes.append(sorted_c)
     return sorted_chromosomes
 
+def get_neighbors(c,e):
+    ind = c.index(e)
+    if ind:
+        this_prev_blocks_id = c[ind-1].block_id
+    else:
+        this_prev_blocks_id = None
+    if ind < len(c)-1:
+        this_next_blocks_id = c[ind+1].block_id
+    else:
+        this_next_blocks_id = None
+    return (this_prev_blocks_id, this_next_blocks_id)
+
+def rename_duplications(specie_entries, renamed_prev_entries, min_available_id):
+    new_entries = []
+    #first check if some entries already renamed
+    if renamed_prev_entries:
+        for c in specie_entries:
+            new_entries.append([])
+            for e in c:
+                renamed_entries = filter(lambda x: x.last_id == e.block_id, renamed_prev_entries)
+                if renamed_entries:
+                    this_prev_block_id,this_next_block_id = get_neighbors(c,e)
+                for renamed_e in renamed_entries:
+                    if (not renamed_e.prev_id or not this_prev_block_id or renamed_e.prev_id == this_prev_block_id) and\
+                        (not renamed_e.next_id or not this_next_block_id or renamed_e.next_id == this_next_block_id):
+                        e.block_id = renamed_e.current_id
+                new_entries[-1].append(e)
+    #rename own duplications
+    triples = {}
+    if new_entries:
+        specie_entries = new_entries
+    new_entries = []
+    for c in specie_entries:
+        new_entries.append([])
+        for e in c:
+            this_prev_block_id,this_next_block_id = get_neighbors(c,e)
+            if not e.block_id in triples:
+                triples[e.block_id] = (this_prev_block_id,this_next_block_id) 
+            else:
+                last_this_block_id = e.block_id
+                print 'renaming', e.block_id, 'into', min_available_id, e.genome
+                e.block_id = min_available_id
+                min_available_id += 1
+                triples[e.block_id] = (this_prev_block_id,this_next_block_id)
+                renamed_prev_entries.append(model.RenamedEntry(this_prev_block_id,this_next_block_id,last_this_block_id,e.block_id,e))
+            new_entries[-1].append(e)
+    return new_entries, renamed_prev_entries, min_available_id 
 
 #normalization means we revert all the negative-strand blocks of the chromosome in specie1
 #and change the strand of the corresponding block in specie2

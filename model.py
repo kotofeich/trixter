@@ -48,6 +48,14 @@ class Entry:
     def print_out(self):
         print 'seq_id:',self.seq_id, 'block_id:', self.block_id, 'strand:', self.strand, 'start:', self.start, 'end:', self.end, 'length:', self.length
 
+class RenamedEntry:
+    def __init__(self, prev_id, next_id, last_id, current_id, location):
+        self.prev_id = prev_id
+        self.next_id = next_id
+        self.last_id = last_id
+        self.current_id = current_id
+        self.location = location
+
 class Block:
     def __init__(self, id,entries):
         self.id = id
@@ -161,6 +169,7 @@ SPLITTER = '-----------------------------------'
 
 def parse_blocks(f, count_c=False):
     count_chrs = {}
+    max_block_id = 0
     with open(f) as blocks_file:
         blocks_section = False
         entries = []
@@ -175,6 +184,8 @@ def parse_blocks(f, count_c=False):
                     if id:
                         blocks.append(Block(id, entries))
                     id = int(line[7:])
+                    if id > max_block_id:
+                        max_block_id = id
                     entries = []
                     continue
                 if 'Seq_id' in line or SPLITTER in line:
@@ -192,7 +203,7 @@ def parse_blocks(f, count_c=False):
                         count_chrs[seq_id] = 1
         blocks.append(Block(id, entries))
     if count_c:
-        return blocks, count_chrs
+        return blocks, count_chrs,max_block_id
     else:
         return blocks
 

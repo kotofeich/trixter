@@ -31,6 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--report_translocations', action='store_true', help='report translocations in specie2 related to specie1')
     parser.add_argument('--report_reversals', action='store_true', help='report reversals in specie2 related to specie1')
     parser.add_argument('--species', nargs='+', help='species to check')
+    parser.add_argument('--rename_duplications', action='store_true')
     
     parser.add_argument('--classify_breakpoints', action='store_true', help='find out which species contain breakpoint')
     parser.add_argument('--print_table', action='store_true', help='not reporting themself but the list of species that contain it')
@@ -40,7 +41,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     chroms = model.parse_chromosomes(args.file)
-    blocks, count_chrs = model.parse_blocks(args.file, True)
+    blocks, count_chrs, max_block_id = model.parse_blocks(args.file, True)
 
     if args.filter:
         f_blocks = utils.filter_bed(blocks, args.filter)
@@ -65,6 +66,9 @@ if __name__ == '__main__':
             #Tprint_out_genome_thread(args.species[1],utils.thread_specie_genome(entries),os.path.join(test_path,'tmp2'))
             #Texit()
             specie2 = utils.thread_specie_genome(entries2)
+            if args.rename_duplications:
+                specie1, renamed_prev_species, min_next_block_id = utils.rename_duplications(specie1, [], max_block_id+1)
+                specie2, renamed_prev_species, min_next_block_id = utils.rename_duplications(specie2, renamed_prev_species, min_next_block_id)
             specie2_grouped = []
             #group entries in specie2 according to the order of blocks on chromosomes in specie1
             visited_blocks = set()
