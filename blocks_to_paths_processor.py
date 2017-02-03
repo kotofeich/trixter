@@ -119,6 +119,8 @@ class BlocksToPathsProcessor:
     #each block is also a list of possible alternative locations of this block
     @staticmethod
     def search_paths(entries):
+        if not entries:
+            return []
         '''
         #PRINT ENTRIES
         print 'entries:'

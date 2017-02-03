@@ -55,6 +55,8 @@ choose the one interpretation that corresponds to less transpositions
 returns list of (prev entry, rearranged entry) s. get_previous_entries
 '''
 def check_transpositions(c):
+    if not c:
+        return ([],[],[])
     transpositions = []
     seq_ids = map(lambda x: x.seq_id, c)
     seq_ids = set(seq_ids)
@@ -106,6 +108,8 @@ however we report translocations in the same manner as reversals and transpositi
 for uniformity and for being able to report the breakpoints if needed
 '''
 def check_translocations(c):
+    if not c:
+        return [], []
     c_seq_ids =[]
     c_sorted = sorted(c, key=lambda x:x.seq_id)
     for e in itertools.groupby(c_sorted, lambda x: x.seq_id):
@@ -135,6 +139,8 @@ every '-' is called reversal
 but if the whole 'chromosome' is '-' than nothing is reversed
 '''
 def check_reversals(c):
+    if not c:
+        return []
     c_rev = filter(lambda x: x.strand == '-', c)
     if len(c_rev) == len(c) :
         return []

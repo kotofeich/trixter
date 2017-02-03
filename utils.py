@@ -96,7 +96,7 @@ def rename_duplications(specie_entries, renamed_prev_entries, min_available_id):
                 triples[e.block_id] = (this_prev_block_id,this_next_block_id) 
             else:
                 last_this_block_id = e.block_id
-                print 'renaming', e.block_id, 'into', min_available_id, e.genome
+                print 'renaming', e.block_id, 'into', min_available_id, e.get_specie()
                 e.block_id = min_available_id
                 min_available_id += 1
                 triples[e.block_id] = (this_prev_block_id,this_next_block_id)

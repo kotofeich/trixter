@@ -74,6 +74,8 @@ if __name__ == '__main__':
             visited_blocks = set()
             for sp in specie1:
                 specie2_grouped.append([])
+                #unpaired entries are erased
+                unpaired_entries = set([])
                 for y in sp:
                     if y.block_id in visited_blocks:
                         continue
@@ -86,6 +88,7 @@ if __name__ == '__main__':
                     elif len(c) > 1:
                         raise Exception('duplicated block in', args.species[1])
                     elif not c:
+                        unpaired_entries.add(y)
                         print 'no such blocks ', y.block_id, 'in specie', args.species[1]
                     '''
                     #now let's order the blocks that are duplicated on the same chromosome
@@ -94,6 +97,8 @@ if __name__ == '__main__':
                         c_grouped_same_chrom = list(itertools.product(*c_grouped_same_chrom))
                         specie2_grouped[-1] += c_grouped_same_chrom
                     '''
+                for y in unpaired_entries:
+                    sp.remove(y)
             specie2_rear = []
             cnt_empty = 0
             for e in specie2_grouped:
