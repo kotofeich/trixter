@@ -115,6 +115,8 @@ if __name__ == '__main__':
                     to_start = -1
                     to_end = -2
                     for e in trp:
+                        if not e:
+                            continue
                         this_prev = e[0]
                         this_trp.append(e[1])
                         this_next = e[2]
@@ -160,6 +162,8 @@ if __name__ == '__main__':
                     #for x in c:
                     #    x.print_out()
                     for e in rev:
+                        if not e:
+                            continue
                         this_prev = e[0]
                         this_rev = e[1]
                         #count reversal only once if
