@@ -118,16 +118,16 @@ def check_translocations(c):
     ls = list(zip(lengths, c_seq_ids))
     ls_sorted = sorted(ls, key=lambda x: x[0])
     translocations = map(lambda x: x[1], ls_sorted[:-1])
+    #main_chrom = (ls_sorted[-1][1][0].get_chrom(), ls_sorted[-1][1][0].block_id)
     main_chrom = ls_sorted[-1][1][0].get_chrom()
-    #trs_prev = get_previous_entries(translocations, c)
-    #trs_next = get_next_entries(translocations, c)
     '''
+    print 'start'
     for e in ls_sorted:
-        print e[0]
+        print '----'
         for x in e[1]:
             x.print_out()
-        print
-    '''
+        print '----'
+        '''
     return main_chrom, translocations
 
 '''

@@ -70,7 +70,7 @@ def get_neighbors(c,e):
 
 def rename_duplications(specie_entries, renamed_prev_entries, min_available_id):
     new_entries = []
-    #first check if some entries already renamed
+    #first check if some entries already renamed - in another genome(s)
     if renamed_prev_entries:
         for c in specie_entries:
             new_entries.append([])
@@ -83,7 +83,7 @@ def rename_duplications(specie_entries, renamed_prev_entries, min_available_id):
                         (not renamed_e.next_id or not this_next_block_id or renamed_e.next_id == this_next_block_id):
                         e.block_id = renamed_e.current_id
                 new_entries[-1].append(e)
-    #rename own duplications
+    #rename own duplications - in this genome
     triples = {}
     if new_entries:
         specie_entries = new_entries
@@ -150,7 +150,6 @@ def filter_unsplitted_chromosomes(blocks, count_chrs, sps):
             #specie = chroms[int(seq_id)].get_specie()
             specie = e.get_specie()
             if specie in sps:
-                #if count_chrs[e.seq_id] > 1:
                 if count_chrs[e.seq_id] > 1:
                     upd_entries.append(e)
                     upd_species.add(specie)
