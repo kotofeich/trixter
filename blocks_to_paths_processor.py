@@ -122,11 +122,13 @@ class BlocksToPathsProcessor:
         if not entries:
             return []
         #PRINT ENTRIES
+        '''
         print 'entries:'
         for e in entries:
             for p in e:
                 p.print_out()
             print '---'
+        '''
         edges = BlocksToPathsProcessor.__find_graph_edges(entries)
         '''
         print 'edges:'
