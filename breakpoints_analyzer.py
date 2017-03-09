@@ -86,13 +86,13 @@ if __name__ == '__main__':
                     if y.block_id in visited_blocks:
                         continue
                     if len(filter(lambda a:a.block_id==y.block_id, sp)) > 1:
-                       raise Exception('duplicated block in', args.species[0])
+                       raise Exception('duplicated block',y.block_id, 'in', args.species[0])
                     c = filter(lambda x: x.block_id == y.block_id, entries2)
                     visited_blocks.add(y.block_id)
                     if len(c) == 1:
                         specie2_grouped[-1].append(c)
                     elif len(c) > 1:
-                        raise Exception('duplicated block in', args.species[1])
+                       raise Exception('duplicated block',y.block_id, 'in', args.species[0])
                     elif not c:
                         unpaired_entries.add(y)
                         print 'no such blocks ', y.block_id, 'in specie', args.species[1]
@@ -108,18 +108,18 @@ if __name__ == '__main__':
                     sp.remove(y)
             specie2_rear = []
             cnt_empty = 0
-            for e in specie2_grouped[0]:
-                print len(e), e[0].print_out()
+            for e in specie2_grouped:
+                specie2_rear.append(list(itertools.chain(*e)))   
+            '''
             for e in specie2_grouped:
                 p = BlocksToPathsProcessor.search_paths(e)
                 if not p:
                     cnt_empty += 1
                 specie2_rear.append(p)
             print 'unresolved paths (chromosomes):', cnt_empty
-            #print order
+            print order
+            '''
             specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
-            #print_out_genome_thread(specie2_rear)
-            #exit()
             for c in specie2_rear:
                 if args.report_transpositions:
                     trp = rearrangements_type.check_transpositions(c)

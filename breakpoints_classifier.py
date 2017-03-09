@@ -29,6 +29,21 @@ def create_indices(species, threaded_genomes):
                ind[(chrs[k][i].block_id, g)].append((prev_id,next_id)) 
     return ind
 
+
+#doesnt work for duplications (will rewrite the previous entry)
+def build_features_index(blocks):
+    features = {}
+    for b in blocks:
+        if len(set(map(lambda x:x.get_specie(),b.entries))) > len(map(lambda x:x.get_specie(),b.entries)):
+            print 
+            raise Exception('cant handle duplications in build_features_index')
+        for e in b.entries:
+            features[(e.get_specie(),e.block_id)] = [e.get_chrom(), e.start, e.end]
+    return features
+
+def get_features(specie, block_id, features):
+    return ' '.join(map(str,features[(specie,block_id)]))
+
 def run(blocks, print_table=False):
     species = sorted(list(get_set_entries(blocks)))
     threaded_genomes = {}
@@ -40,6 +55,9 @@ def run(blocks, print_table=False):
     dupls_num = 0
     blocks_num = 0
     entries_num = 0
+    features={}
+    if not print_table:
+        features=build_features_index(blocks)
     if print_table:
         header = '\t'.join(['breakpoint block']+species)
         print header
@@ -101,12 +119,12 @@ def run(blocks, print_table=False):
                 if not prev in allowable:
                     species_status[ind[1]] = 'BR'
                     if not print_table:
-                        print 'breakpoint', ind[1], prev, '-', ind[0]
+                        print 'breakpoint', ind[1], prev, get_features(ind[1],prev,features), '-', ind[0], get_features(ind[1],ind[0],features)
                         br = True
                 if not next in allowable:
                     species_status[ind[1]] = 'BR'
                     if not print_table:
-                        print 'breakpoint', ind[1], ind[0], '-', next
+                        print 'breakpoint', ind[1], ind[0], get_features(ind[1],ind[0],features), '-', next, get_features(ind[1],next,features)
                         br = True
             #if br:
             #    print

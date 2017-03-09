@@ -121,8 +121,8 @@ class BlocksToPathsProcessor:
     def search_paths(entries):
         if not entries:
             return []
-        #PRINT ENTRIES
         '''
+        #PRINT ENTRIES
         print 'entries:'
         for e in entries:
             for p in e:
@@ -137,7 +137,7 @@ class BlocksToPathsProcessor:
             e[1].print_out()
             print e[2]
             print
-        '''
+            '''
         threads = []
         for e in entries[0]:
             #-1 because max level number is len(entries)-1
