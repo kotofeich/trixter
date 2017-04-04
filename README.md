@@ -38,7 +38,7 @@ with regard to the order of blocks in first specie.
 
 Example:
 
-    breakpoints_analyzer.py --report_translocations —-species Cat Dog  blocks_coords.txt
+    breakpoints_analyzer.py --report_translocations —-species Cat Dog --file blocks_coords.txt
    
 #### Identify breakpoints among the set of genomes 
 
@@ -46,9 +46,9 @@ All the genomes present in the blocks file are considered.
 
 Example: 
 
-    breakpoints_analyzer.py --classify_breakpoints blocks_coords.txt
+    breakpoints_analyzer.py --classify_breakpoints --file blocks_coords.txt
     
-    breakpoints_analyzer.py --classify_breakpoints --print_table blocks_coords.txt
+    breakpoints_analyzer.py --classify_breakpoints --print_table --file blocks_coords.txt
     
 #### Print out the genome blocks
 
@@ -56,7 +56,7 @@ The blocks file is parsed and the blocks comprising the specified specie chromos
 
 Example:
 
-    breakpoints_analyzer.py --print_out_genomes Cat blocks_coords.txt
+    breakpoints_analyzer.py --print_out_genomes Cat --file blocks_coords.txt
 
 ### Output
 
