@@ -2,6 +2,7 @@
 
 import model
 import re
+import itertools
 
 def intersect(entry, bed_entries):
     intersected_bed_entries = []
@@ -43,18 +44,64 @@ def get_specie_entries(blocks, specie):
 
 def thread_specie_genome(specie_entries):
     genome = []
-    chromosomes_names = set(map(lambda x: x.seq_id, specie_entries))
+    chromosomes_names = set(map(lambda x: x.get_seq_id(), specie_entries))
     chromosomes = []
     # group entries by chromosomes
     for c in chromosomes_names:
-        c_entries = filter(lambda x: x.seq_id==c, specie_entries)
+        c_entries = filter(lambda x: x.get_seq_id()==c, specie_entries)
         chromosomes.append(c_entries)
     # sort entries in chromosomes by position
     sorted_chromosomes = []
     for c in chromosomes:
-        sorted_c = sorted(c, key=lambda x: x.start)
+        sorted_c = sorted(c, key=lambda x: x.get_start())
         sorted_chromosomes.append(sorted_c)
     return sorted_chromosomes
+
+def print_out_genome_thread(entries,path=None):
+    i = 0 
+    if path:
+        f = open(path, 'w')
+    for c in entries:
+        i += 1
+        if path:
+            f.write(str(i)+'\n') 
+        else:
+            print i
+        for e in c:
+            s = 'seq_id: ' + str(e.get_seq_id()) + ' block_id: ' + str(e.get_block_id()) + ' strand: '\
+             + str(e.strand) + ' start: ' + str(e.get_start()) + ' end: ' + str(e.get_end())
+            if path:
+                f.write(s+'\n')
+            else:
+                print s
+    if path:
+        f.close()
+
+def group_by_ref(ref_genome, target_genome):
+    target_genome_grouped = []
+    visited_blocks = set()
+    for sp in ref_genome:
+        target_genome_grouped.append([])
+        #unpaired entries are erased
+        unpaired_entries = set([])
+        for y in sp: 
+            if y.get_block_id() in visited_blocks:
+                continue
+            c = filter(lambda x: x.get_block_id() == y.get_block_id(), list(itertools.chain(*target_genome)))
+            visited_blocks.add(y.get_block_id())
+            if len(c) == 1:
+                target_genome_grouped[-1].append(c[0])
+            elif not c:
+                 unpaired_entries.add(y)
+            else:
+                raise Exception('duplicated block!')
+            for y in unpaired_entries:
+                sp.remove(y)
+    #t = []
+    #for e in target_genome_grouped:
+    #    t.append(list(itertools.chain(*e)))
+    #return t
+    return target_genome_grouped
 
 def get_neighbors(c,e):
     ind = c.index(e)
@@ -113,10 +160,13 @@ def normalize(specie1, specie2):
     for i in range(len(specie1)):
         c1 = specie1[i]
         c2 = specie2[i]
+        #if c1 : print '0', c1[0].print_out()
+        #if c2 : print '1', c2[0].print_out()
+        #print
         if not c1 or not c2:
             print 'skipping empty chromosome'
-            #print c1
-            #print c2
+            #if c1 : print '0', c1[0].print_out()
+            #if c2 : print '1', c2[0].print_out()
             continue
         '''
         if len(c1) != len(c2):

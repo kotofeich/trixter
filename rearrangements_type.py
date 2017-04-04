@@ -58,12 +58,12 @@ def check_transpositions(c):
     if not c:
         return ([],[],[])
     transpositions = []
-    seq_ids = map(lambda x: x.seq_id, c)
+    seq_ids = map(lambda x: x.get_seq_id(), c)
     seq_ids = set(seq_ids)
     #consider blocks separately for each chromosome
     for s in seq_ids:
-        c_seq_id = filter(lambda x: x.seq_id == s, c)
-        c_seq_id_sorted = sorted(c_seq_id, key = lambda x: x.start)
+        c_seq_id = filter(lambda x: x.get_seq_id() == s, c)
+        c_seq_id_sorted = sorted(c_seq_id, key = lambda x: x.get_start())
         if c_seq_id == c_seq_id_sorted or c_seq_id == c_seq_id_sorted[::-1]:
             continue
         '''
@@ -111,10 +111,10 @@ def check_translocations(c):
     if not c:
         return [], []
     c_seq_ids =[]
-    c_sorted = sorted(c, key=lambda x:x.seq_id)
-    for e in itertools.groupby(c_sorted, lambda x: x.seq_id):
+    c_sorted = sorted(c, key=lambda x:x.get_seq_id())
+    for e in itertools.groupby(c_sorted, lambda x: x.get_seq_id()):
         c_seq_ids.append(list(e[1]))
-    lengths = map(lambda y: sum(map(lambda x: math.fabs(int(x.end)-int(x.start)), y)), c_seq_ids)
+    lengths = map(lambda y: sum(map(lambda x: math.fabs(int(x.get_end())-int(x.get_start())), y)), c_seq_ids)
     ls = list(zip(lengths, c_seq_ids))
     ls_sorted = sorted(ls, key=lambda x: x[0])
     translocations = map(lambda x: x[1], ls_sorted[:-1])
