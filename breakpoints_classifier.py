@@ -124,6 +124,10 @@ def run(blocks, print_table=False):
                 if not next in allowable:
                     species_status[ind[1]] = 'BR'
                     if not print_table:
+                        print ind[1]
+                        print ind[0]
+                        print features
+                        print next
                         print 'breakpoint', ind[1], ind[0], get_features(ind[1],ind[0],features), '-', next, get_features(ind[1],next,features)
                         br = True
             #if br:
@@ -137,7 +141,7 @@ def run(blocks, print_table=False):
                 continue
             for e in species:
                 if not e in species_status.keys():
-                    l += '\t'+'not in block'
+                    l += '\t'+'not-in-block'
                 else:
                     l+='\t'+species_status[e]
             print l
@@ -148,5 +152,3 @@ def run(blocks, print_table=False):
         print 'STAT number of dupls (among entries):', dupls_num
         print 'STAT rate of duplications:', float(dupls_num)/entries_num
         
-
-    
