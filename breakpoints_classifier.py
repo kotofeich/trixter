@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import utils
 import itertools
 from collections import Counter, defaultdict
@@ -36,7 +34,7 @@ def build_features_index(blocks):
     for b in blocks:
         if len(set(map(lambda x:x.get_specie(),b.entries))) > len(map(lambda x:x.get_specie(),b.entries)):
             print 
-            raise Exception('cant handle duplications in build_features_index')
+            raise Exception('cant handle duplications in ' + build_features_index.__name__)
         for e in b.entries:
             features[(e.get_specie(),e.block_id)] = [e.get_chrom(), e.start, e.end]
     return features
@@ -46,6 +44,77 @@ def get_features(specie, block_id, features):
         return ' '.join([specie,'duplication'])
     return ' '.join(map(str,features[(specie,block_id)]))
 
+
+def build_neighbours(block_inds, index):
+    # just linearize two-dimensional data
+    # [(prev1, next1), (prev2, next2)] -> [prev1, next1, prev2, next2]
+    entries_num = 0
+    dupls_num = 0
+    neighbours = []
+    species_status = {}
+    for ind in block_inds:
+        entries_num += len(index[ind])
+        if len(index[ind]) > 1:
+            dupls_num += len(index[ind])
+            index[ind] = [(-3, -3)]
+            species_status[ind[1]] = 'DUP'
+        # beware of dupl!
+        neighb = index[ind][0]
+        neighbours.append(neighb[0])
+        neighbours.append(neighb[1])
+    return dupls_num, entries_num, neighbours, species_status
+
+def process_at_index(index,ind,allowable,features,species_status,nodef,print_table):
+    # beware of dupl!
+    prev, next = index[ind][0]
+    if prev in nodef and next in nodef:
+        # the whole block is a full scaffold in the specie
+        species_status[ind[1]] = 'END'
+        return
+    if prev in allowable and next in allowable:
+        species_status[ind[1]] = '-'
+        return
+    if not prev in allowable:
+        species_status[ind[1]] = 'BR'
+        if not print_table:
+            print 'breakpoint', ind[1], prev, get_features(ind[1], prev, features), '-', ind[0], get_features(
+                ind[1], ind[0], features)
+    if not next in allowable:
+        species_status[ind[1]] = 'BR'
+        if not print_table:
+            print ind[1]
+            print ind[0]
+            print next
+            print 'breakpoint', ind[1], ind[0], get_features(ind[1], ind[0], features), '-', next, get_features(
+                ind[1], next, features)
+
+def process_block_neighborhood(neighbours,block_inds,species_status,print_table,features,index):
+    # sort by popularity in descending order
+    # and leave only non-ending
+    c = Counter(neighbours).most_common()
+    c = filter(lambda x: x[0] != -2 and x[0] != -1 and x[0] != -3, c)
+    # if len is less or equal than two (most popular from left and from right),
+    # then breakpoint is likely to be caused by assembly incompleteness
+    if len(c) > 2:
+        c2 = Counter(dict(c)).most_common()
+        if c[2][1] == c[1][1]:
+            if not print_table:
+                print 'cant distinguish two most common!'
+                print
+            for ind in block_inds:
+                if not ind[1] in species_status.keys():
+                    # could not resolve breakpoint
+                    species_status[ind[1]] = 'NA'
+            return
+        first_common = c[0][0]
+        second_common = c[1][0]
+        nodef = set([-1, -2])
+        allowable = set([-1, -2, first_common, second_common])
+        br = False
+        for ind in block_inds:
+            process_at_index(index, ind, allowable, features, species_status, nodef, print_table)
+
+
 def run(blocks, print_table=False):
     species = sorted(list(get_set_entries(blocks)))
     threaded_genomes = {}
@@ -54,9 +123,8 @@ def run(blocks, print_table=False):
             threaded_genomes[sp] = utils.thread_specie_genome(entries)
     index = create_indices(species, threaded_genomes)
     blocks_ids = get_blocks_ids(blocks)
-    dupls_num = 0
     blocks_num = 0
-    entries_num = 0
+
     features={}
     if not print_table:
         features=build_features_index(blocks)
@@ -66,70 +134,12 @@ def run(blocks, print_table=False):
     for b in blocks_ids:
         blocks_num += 1
         block_inds = filter(lambda x: x[0] == b, index)
-        neighbours = []    
-        species_status = {}
         if not print_table:
+            print 'block_id:', b
             for ind in block_inds:
                 print index[ind]
-        #just linearize two-dimensional data
-        #[(prev1, next1), (prev2, next2)] -> [prev1, next1, prev2, next2]
-        for ind in block_inds:
-            entries_num += len(index[ind])
-            if len(index[ind]) > 1:
-                dupls_num += len(index[ind])
-                index[ind] = [(-3,-3)]
-                species_status[ind[1]] = 'DUP'
-            #beware of dupl!
-            neighb = index[ind][0]    
-            neighbours.append(neighb[0])
-            neighbours.append(neighb[1])
-        #sort by popularity in descending order
-        #and leave only non-ending
-        c = Counter(neighbours).most_common()
-        c = filter(lambda x:x[0] != -2 and x[0] != -1 and x[0] != -3, c)
-        #print c
-        #if len is less or equal than two (most popular from left and from right), 
-        #then breakpoint is likely to be caused by assembly incompleteness
-        if len(c) > 2:
-            c2 = Counter(dict(c)).most_common()
-            if c[2][1] == c[1][1]:
-                if not print_table:
-                    print 'cant distinguish two most common!'
-                    print
-                for ind in block_inds:
-                    if not ind[1] in species_status.keys():
-                        #could not resolve breakpoint
-                        species_status[ind[1]] = 'NA'
-                continue
-            first_common = c[0][0]
-            second_common = c[1][0]
-            nodef = set([-1,-2])
-            allowable = set([-1,-2,first_common,second_common])
-            br = False
-            for ind in block_inds:
-                #beware of dupl!
-                prev,next = index[ind][0]
-                if prev in nodef and next in nodef:
-                    #the whole block is a full scaffold in the specie
-                    species_status[ind[1]] = 'END'
-                    continue
-                if prev in allowable and next in allowable:
-                    species_status[ind[1]] = '-'
-                    continue
-                if not prev in allowable:
-                    species_status[ind[1]] = 'BR'
-                    if not print_table:
-                        print 'breakpoint', ind[1], prev, get_features(ind[1],prev,features), '-', ind[0], get_features(ind[1],ind[0],features)
-                        br = True
-                if not next in allowable:
-                    species_status[ind[1]] = 'BR'
-                    if not print_table:
-                        print ind[1]
-                        print ind[0]
-                        print features
-                        print next
-                        print 'breakpoint', ind[1], ind[0], get_features(ind[1],ind[0],features), '-', next, get_features(ind[1],next,features)
-                        br = True
+        dupls_num, entries_num, neighbours, species_status = build_neighbours(block_inds, index)
+        process_block_neighborhood(neighbours,block_inds,species_status,print_table,features,index)
         if not print_table:
             print
         if print_table:
@@ -144,9 +154,10 @@ def run(blocks, print_table=False):
                     l+='\t'+species_status[e]
             print l
     if not print_table:
-        print 'STAT Also:'
         print 'STAT number of blocks:', blocks_num
         print 'STAT number of entries:', entries_num
         print 'STAT number of dupls (among entries):', dupls_num
         print 'STAT rate of duplications:', float(dupls_num)/entries_num
-        
+
+
+
