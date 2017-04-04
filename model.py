@@ -127,8 +127,8 @@ def parse_blocks(f, count_c=False, skip_dups=False):
                     continue
                 line = line.split()
                 seq_id = line[0]
-                if seq_id.find('random') > -1 or seq_id.find('hap') > -1:
-                    continue
+                #if seq_id.find('random') > -1 or seq_id.find('hap') > -1:
+                #    continue
                 entries.append(Entry(seq_id,line[1],int(line[2]),int(line[3]),int(line[4])))
                 if count_c:
                     if  seq_id in count_chrs.keys():
