@@ -12,21 +12,6 @@ def intersect(entry, bed_entries):
                 intersected_bed_entries.append(b)
     return intersected_bed_entries
 
-def filter_bed(blocks, bed):
-    bed_entries = model.parse_bed(bed)
-    for b in blocks:
-        intersected_bed_entries = []
-        for e in b.entries:
-            intersected_bed_entries += intersect(e, bed_entries)
-        if intersected_bed_entries:
-            #bed_entries = map(lambda x: bed_entries.remove(x), intersected_bed_entries)
-            for bed in intersected_bed_entries:
-                print '#',
-                bed.print_out()
-            b.print_out()
-            #if len(intersected_bed_entries) == 0:
-            #    return
-
 
 #traverses blocks and collects all the entries
 #related to the specie

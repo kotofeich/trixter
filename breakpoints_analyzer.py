@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--print_table', action='store_true', help='not reporting themself but the list of species that contain it')
 
     parser.add_argument('--print_out_genomes', action='store_true', help='prints out genomes of --species in terms of blocks')
-    parser.add_argument('--filter', help='filter blocks for regions mentioned in bed file')
+
 
     args = parser.parse_args()
     chroms = model.parse_chromosomes(args.file)
@@ -34,9 +34,7 @@ if __name__ == '__main__':
     else:
         blocks, count_chrs, max_block_id = model.parse_blocks(args.file, count_c=True, skip_dups=False)
 
-    if args.filter:
-        f_blocks = utils.filter_bed(blocks, args.filter)
-    elif args.classify_breakpoints:
+    if args.classify_breakpoints:
         if args.print_table:
             breakpoints_classifier.run(blocks, True)
         else:
@@ -50,12 +48,7 @@ if __name__ == '__main__':
             entries = utils.get_specie_entries(blocks, args.species[0])
             #sort entries by chromosomes for specie1
             specie1 = utils.thread_specie_genome(entries)
-            #Tfor testing purposes
-            #Ttest_path = '/Users/admin/projects/felidae_comp/analysis/synteny/solenodon/1000/'
-            #Tprint_out_genome_thread(args.species[0],specie1,os.path.join(test_path,'tmp1'))
             entries2 = utils.get_specie_entries(blocks, args.species[1])
-            #Tprint_out_genome_thread(args.species[1],utils.thread_specie_genome(entries),os.path.join(test_path,'tmp2'))
-            #Texit()
             specie2 = utils.thread_specie_genome(entries2)
             if args.rename_duplications:
                 specie1, renamed_prev_species, min_next_block_id = utils.rename_duplications(specie1, [], max_block_id+1)
@@ -126,17 +119,9 @@ if __name__ == '__main__':
                             to_start = -1
                             to_end = -2
                             this_trp = []
-                    #print 'transposition:'
-                    #for t in trp:
-                    #    t[1].print_out()
                 if args.report_translocations:
                     main_chrom, trl = rearrangements_type.check_translocations(c)
                     for e in trl:
-                        #if not this_prev in all_translocated_entries:
-                        #    count_trl += 1
-                        #print 'whole chromosome:'
-                        #for x in c:
-                        #    x.print_out()
                         print 'translocation: from chromosome', main_chrom
                         for x in e:
                             x.print_out()
@@ -145,9 +130,6 @@ if __name__ == '__main__':
                 if args.report_reversals:
                     count_rev = 0
                     rev = rearrangements_type.check_reversals(c)
-                    #print 'whole chromosome'
-                    #for x in c:
-                    #    x.print_out()
                     for e in rev:
                         if not e:
                             continue
@@ -162,7 +144,6 @@ if __name__ == '__main__':
                     if count_rev:
                         print 'overall reversals', count_rev
     elif args.print_out_genomes :
-        #blocks = utils.filter_unsplitted_chromosomes(blocks, count_chrs, args.species)
         for sp in args.species:
             entries = utils.get_specie_entries(blocks, sp)
             specie_genome = utils.thread_specie_genome(entries)

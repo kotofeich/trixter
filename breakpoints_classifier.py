@@ -42,6 +42,8 @@ def build_features_index(blocks):
     return features
 
 def get_features(specie, block_id, features):
+    if block_id == '-3' :
+        return ' '.join([specie,'duplication'])
     return ' '.join(map(str,features[(specie,block_id)]))
 
 def run(blocks, print_table=False):
@@ -77,7 +79,6 @@ def run(blocks, print_table=False):
                 dupls_num += len(index[ind])
                 index[ind] = [(-3,-3)]
                 species_status[ind[1]] = 'DUP'
-                #TODO solve duplications!!
             #beware of dupl!
             neighb = index[ind][0]    
             neighbours.append(neighb[0])
@@ -111,7 +112,6 @@ def run(blocks, print_table=False):
                 if prev in nodef and next in nodef:
                     #the whole block is a full scaffold in the specie
                     species_status[ind[1]] = 'END'
-                #    print 'possible breakpoint', ind[1], prev, '-', ind[0], '-', next
                     continue
                 if prev in allowable and next in allowable:
                     species_status[ind[1]] = '-'
@@ -130,9 +130,7 @@ def run(blocks, print_table=False):
                         print next
                         print 'breakpoint', ind[1], ind[0], get_features(ind[1],ind[0],features), '-', next, get_features(ind[1],next,features)
                         br = True
-            #if br:
-            #    print
-        if not print_table:    
+        if not print_table:
             print
         if print_table:
             l = str(b)

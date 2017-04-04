@@ -25,9 +25,6 @@ class BlocksToPathsProcessor:
                 for e_next in v_next:
                     if e.seq_id == e_next.seq_id:
                         edges.append((e,e_next,i))
-                        #print i
-                        #e.print_out()
-                        #e_next.print_out()
                         appended = True
                 #in case we didn't found the next block on the same chromosome
                 #add all the following blocks (on all the chromosomes)
