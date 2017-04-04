@@ -63,7 +63,7 @@ def process_reversals(c):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='blocks_coords.txt')
+    parser.add_argument('--file', required=True, help='blocks_coords.txt')
     rearrangements_group = parser.add_argument_group()
     type_group = rearrangements_group.add_mutually_exclusive_group()
     type_group.add_argument('--report_transpositions', action='store_true', help='report transpositions in specie2 related to specie1')
@@ -76,8 +76,7 @@ if __name__ == '__main__':
     breakpoints_group.add_argument('--print_table', action='store_true', help='not reporting themself but the list of species that contain it')
 
     io_group = parser.add_argument_group()
-    io_group.add_argument('--print_out_genomes', action='store_true', help='prints out genomes of --species in terms of blocks')
-
+    io_group.add_argument('--print_genomes', nargs='+', help='prints out specified genomes')
 
     args = parser.parse_args()
     chroms = model.parse_chromosomes(args.file)
@@ -109,8 +108,8 @@ if __name__ == '__main__':
                 process_translocations(c)
             if args.report_reversals:
                 process_reversals(c)
-    elif args.print_out_genomes :
-        for sp in args.species:
+    elif args.print_genomes :
+        for sp in args.print_genomes:
             entries = utils.get_specie_entries(blocks, sp)
             specie_genome = utils.thread_specie_genome(entries)
             utils.print_out_genome_thread(specie_genome)

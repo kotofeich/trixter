@@ -37,6 +37,9 @@ class Entry:
     def set_block_id(self, block_id):
         self.block_id = block_id
 
+    def get_block_id(self):
+        return self.block_id
+
     def get_specie(self):
         return self.seq_id.split('.')[0]
 
