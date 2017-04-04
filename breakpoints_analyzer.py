@@ -11,19 +11,6 @@ from blocks_to_paths_processor import BlocksToPathsProcessor
 import rearrangements_type
 import breakpoints_classifier
 
-def print_out_genome_thread(entries):
-    #with open(file_name,'w') as f:
-        i = 0
-        for c in entries:
-            i += 1
-            #f.write(str(i)+'\n')
-            print i
-            for e in c:
-                 #f.write('seq_id: ' + str(e.seq_id) + ' block_id: ' + str(e.block_id) + ' strand: '\
-                 #+ str(e.strand) + ' start: ' + str(e.start) + ' end: ' + str(e.end) + '\n')
-                 print 'seq_id: ' + str(e.seq_id) + ' block_id: ' + str(e.block_id) + ' strand: '\
-                 + str(e.strand) + ' start: ' + str(e.start) + ' end: ' + str(e.end)
-    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='blocks_coords.txt')
@@ -32,7 +19,8 @@ if __name__ == '__main__':
     parser.add_argument('--report_reversals', action='store_true', help='report reversals in specie2 related to specie1')
     parser.add_argument('--species', nargs='+', help='species to check')
     parser.add_argument('--rename_duplications', action='store_true')
-    
+    parser.add_argument('--skip_duplications', action='store_true')
+
     parser.add_argument('--classify_breakpoints', action='store_true', help='find out which species contain breakpoint')
     parser.add_argument('--print_table', action='store_true', help='not reporting themself but the list of species that contain it')
 
@@ -41,7 +29,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     chroms = model.parse_chromosomes(args.file)
-    blocks, count_chrs, max_block_id = model.parse_blocks(args.file, True)
+    if args.skip_duplications:
+        blocks, count_chrs, max_block_id = model.parse_blocks(args.file, count_c=True, skip_dups=True)
+    else:
+        blocks, count_chrs, max_block_id = model.parse_blocks(args.file, count_c=True, skip_dups=False)
 
     if args.filter:
         f_blocks = utils.filter_bed(blocks, args.filter)
@@ -191,5 +182,5 @@ if __name__ == '__main__':
         for sp in args.species:
             entries = utils.get_specie_entries(blocks, sp)
             specie_genome = utils.thread_specie_genome(entries)
-            print_out_genome_thread(specie_genome)
+            utils.print_out_genome_thread(specie_genome)
 
