@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from collections import Counter 
+
 class Chromosome:
     def __init__(self,seq_id,size,description):
         self.seq_id = seq_id
@@ -24,6 +26,15 @@ class Entry:
             self.start = start
             self.end = end
         self.length = length
+
+    def get_seq_id(self):
+        return self.seq_id
+
+    def get_start(self):
+        return self.start
+
+    def get_end(self):
+        return self.end
 
     def set_block_id(self, block_id):
         self.block_id = block_id
@@ -106,6 +117,7 @@ class MAF_Entry:
         self.strand = strand
         self.all_length = all_length
         self.seq = seq
+        self.block_id = 0
         self.__init_global_coords()
 
     def __init_global_coords(self):
@@ -117,17 +129,92 @@ class MAF_Entry:
             #self.global_end = self.all_length - self.start - 1
             self.global_end = self.all_length - self.start 
             self.global_start = self.all_length - self.start - self.length
+    
+    def set_block_id(self,block_id):
+        self.block_id = block_id
+
+    def get_block_id(self):
+        return self.block_id
+
+    def get_specie(self):
+        return self.genome
+
+    def get_seq_id(self):
+        return self.chrom
+    
+    def get_chrom(self):
+        return self.chrom
+
+    def get_start(self):
+        return self.start
+
+    def get_end(self):
+        return self.start + self.length
 
     def print_out(self):
         #print ' '.join(map(str,['s', self.genome + '.' + self.chrom, self.start,\
         #                        self.length, self.strand, self.all_length, self.seq]))
         print ' '.join(map(str,['s', self.genome + '.' + self.chrom, self.global_start,\
                                 self.global_end, self.strand, self.all_length, self.seq]))
-
+    def print_out_short(self):
+        print ' '.join(map(str,[self.genome + '.' + self.chrom, self.global_start,\
+                                self.global_end]))
     #this prints canonical maf entry
     def print_out_local_coords(self):
         print ' '.join(map(str,['s', self.genome + '.' + self.chrom, self.start,\
                                 self.length, self.strand, self.all_length, self.seq]))
+
+class MAF_Block:
+    def __init__(self,maf_id,entries,isdup=False):
+        self.maf_id = maf_id
+        self.entries = entries
+        self.isdup = isdup
+        self.entries = self.set_block_ids(maf_id)
+    
+    def set_block_ids(self,maf_id):
+        for e in self.entries:
+            e.set_block_id(maf_id)
+        return self.entries
+
+    def print_out(self):
+        print self.maf_id
+        for e in self.entries:
+            e.print_out()
+
+def parse_maf(maf_file,filter_dups=False,number_genomes=0):
+    maf_id = 0
+    blocks = []
+    with open(maf_file) as maf:
+        maf_entries = []
+        for line in maf:
+            line = line.strip()
+            if not line or '#' in line:
+                continue
+            if line[0] == 'a':
+                if maf_entries:
+                    maf_id += 1
+                    isdup = False
+                    genomes = (lambda x:x.genome,maf_entries)
+                    if not filter_dups or\
+                        filter_dups and len(genomes)==len(set(genomes))==number_genomes:
+                        isdup = True
+                    blocks.append(MAF_Block(maf_id,maf_entries,isdup))
+                maf_entries = []
+            else:
+                line = line.split()
+                line = line[1:]
+                genome = line[0].split('.')[0]
+                chrom = '.'.join(line[0].split('.')[1:])
+                maf_entries.append(MAF_Entry(genome, chrom, int(line[1]), int(line[2]),\
+                                             line[3], int(line[4]), line[5]))
+    if maf_entries:
+        genomes = (lambda x:x.genome,maf_entries)
+        isdup = False
+        if not filter_dups or\
+            filter_dups and len(genomes) == len(set(genomes)) == number_genomes:
+                isdup = True
+        blocks.append(MAF_Block(maf_id+1,maf_entries,isdup))
+    return blocks
 
 def check_maf_for_no_overlaps(maf_entries):
     #i don't keep any storage for processed entries
@@ -167,7 +254,7 @@ def parse_chromosomes(f):
 
 SPLITTER = '-----------------------------------'
 
-def parse_blocks(f, count_c=False):
+def parse_blocks(f, count_c=False, skip_dups=False):
     count_chrs = {}
     max_block_id = 0
     with open(f) as blocks_file:
@@ -201,7 +288,9 @@ def parse_blocks(f, count_c=False):
                         count_chrs[seq_id] += 1
                     else:
                         count_chrs[seq_id] = 1
-        blocks.append(Block(id, entries))
+        c = Counter(map(lambda x: x.get_specie(), entries))
+        if not skip_dups or not filter(lambda x: x > 1, c.values()) :
+            blocks.append(Block(id, entries))
     if count_c:
         return blocks, count_chrs,max_block_id
     else:
