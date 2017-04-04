@@ -88,28 +88,12 @@ if __name__ == '__main__':
                         unpaired_entries.add(y)
                         print 'no such blocks ', y.block_id, 'in specie', args.species[1]
                     #now let's order the blocks that are duplicated on the same chromosome
-                    '''
-                    elif len(c) > 1:
-                        c_grouped_same_chrom = [list(v) for k,v in itertools.groupby(c,key=lambda x:x.seq_id)]
-                        c_grouped_same_chrom = map(lambda l: sorted(l, key=lambda y: y.start), c_grouped_same_chrom)
-                        c_grouped_same_chrom = list(itertools.product(*c_grouped_same_chrom))
-                        specie2_grouped[-1] += c_grouped_same_chrom
-                    '''
                 for y in unpaired_entries:
                     sp.remove(y)
             specie2_rear = []
             cnt_empty = 0
             for e in specie2_grouped:
                 specie2_rear.append(list(itertools.chain(*e)))   
-            '''
-            for e in specie2_grouped:
-                p = BlocksToPathsProcessor.search_paths(e)
-                if not p:
-                    cnt_empty += 1
-                specie2_rear.append(p)
-            print 'unresolved paths (chromosomes):', cnt_empty
-            print order
-            '''
             specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
             for c in specie2_rear:
                 if args.report_transpositions:
