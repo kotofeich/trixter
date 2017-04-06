@@ -27,7 +27,7 @@ def process_transpositions(c):
         if to_start != -1 and to_end != -2:
             print 'transposition'
             for t in this_trp:
-                t.print_out_short()
+                t.print_out()
             to_start = -1
             to_end = -2
             this_trp = []
