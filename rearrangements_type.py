@@ -1,15 +1,52 @@
-from collections import Counter
+from collections import Counter, defaultdict
 import itertools
 import math
 import utils
 
 def check_order(list_a, sorted_list):
-    transpositions = []
+    #join neighbours
+    neighbours = defaultdict(set)
+    sorted_neighbours = defaultdict(set)
     for i in range(len(list_a)):
-        if list_a[i] != sorted_list[i]:
-            transpositions.append(sorted_list[i])
-            list_a.remove(sorted_list[i])
-            list_a.insert(i,sorted_list[i])
+        if i > 0:
+            neighbours[list_a[i]].add(list_a[i-1])
+            sorted_neighbours[sorted_list[i]].add(sorted_list[i-1])
+        else:
+            neighbours[list_a[i]].add(None)
+            sorted_neighbours[sorted_list[i]].add(None)
+        if i < len(list_a) - 1:
+            neighbours[list_a[i]].add(list_a[i+1])
+            sorted_neighbours[sorted_list[i]].add(sorted_list[i+1])
+        else:
+            neighbours[list_a[i]].add(None)
+            sorted_neighbours[sorted_list[i]].add(None)
+
+    '''
+    print 'n'
+    for e in neighbours:
+        e.print_out()
+        print '-'
+        for x in neighbours[e]:
+            x.print_out()
+        print
+    print 'sorted n'
+    for e in sorted_neighbours:
+        e.print_out()
+        print '-'
+        for x in sorted_neighbours[e]:
+            x.print_out()
+        print
+    '''
+    transpositions = []
+    reported = set()
+    #check if neighbours are different
+    for e in neighbours:
+        diff = sorted_neighbours[e] - neighbours[e]
+        if diff:
+            for x in diff:
+                if not (e,x) in reported and not (x,e) in reported:
+                    transpositions.append((e,x))
+                    reported.add((e,x))
     return transpositions
 
 '''
@@ -47,12 +84,8 @@ def get_next_entries(list_entries, c):
 
 '''
 transposition is a change of the genomic location on the same chromosome
-idea: transposition is a change of order in a sorted list
-collect to possible interpretations of transpositions:
-in case sorted list in increasing or decreasing
-(this corresponds to entries coming in different order along a chromosome)
-choose the one interpretation that corresponds to less transpositions
-returns list of (prev entry, rearranged entry) s. get_previous_entries
+idea: we report a couple of entries (e1,e2) that are not neighbours in sorting
+the entries according to the order of the other genome
 '''
 def check_transpositions(c):
     if not c:
@@ -63,41 +96,20 @@ def check_transpositions(c):
     #consider blocks separately for each chromosome
     for s in seq_ids:
         c_seq_id = filter(lambda x: x.get_seq_id() == s, c)
-        c_seq_id_sorted = sorted(c_seq_id, key = lambda x: x.get_start())
-        if c_seq_id == c_seq_id_sorted or c_seq_id == c_seq_id_sorted[::-1]:
+        c_seq_id_sorted = list(c_seq_id)
+        c_seq_id_sorted.sort(key=lambda x: x.get_start())
+        if (c_seq_id == c_seq_id_sorted) or (c_seq_id == c_seq_id_sorted[::-1]):
             continue
         '''
-        print 'fc:'
+        print 'aj according fc:'
         for x in c_seq_id:
             x.print_out() 
-        print 'fc sorted according pt:'
+        print 'aj sorted regularly:'
         for x in c_seq_id_sorted:
             x.print_out()
         '''
-        transpositions_up = check_order(c_seq_id, c_seq_id_sorted)
-        transpositions_down = check_order(c_seq_id, c_seq_id_sorted[::-1])
-        if len(transpositions_up) <= len(transpositions_down):
-            transpositions += transpositions_up
-        else:
-            transpositions += transpositions_down
-    #find indices of entries that are previous to the transposed entries
-    #transpositions = sorted(transpositions, key = lambda x: x.start, reverse=True)
-    tps_prev = get_previous_entries(transpositions, c)
-    tps_next = get_next_entries(transpositions, c)
-    '''
-    for p,t,n in zip(tps_prev, transpositions, tps_next):
-        if p:
-            p.print_out()
-        else:
-            print None
-        t.print_out()
-        if n:
-            n.print_out()
-        else:
-            print None
-        print
-    '''
-    return zip(tps_prev, transpositions, tps_next)
+        transpositions += check_order(c_seq_id, c_seq_id_sorted)
+    return transpositions
 
 '''
 translocation is a change of the genomic position to another chromosome
