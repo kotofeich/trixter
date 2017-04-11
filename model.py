@@ -120,7 +120,9 @@ def parse_blocks(f, count_c=False, skip_dups=False):
             if blocks_section:
                 if 'Block #' in line:
                     if id:
-                        blocks.append(Block(id, entries))
+                        c = Counter(map(lambda x: x.get_specie(), entries))
+                        if not skip_dups or not filter(lambda x: x > 1, c.values()) :
+                            blocks.append(Block(id, entries))
                     id = int(line[7:])
                     if id > max_block_id:
                         max_block_id = id
