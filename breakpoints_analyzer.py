@@ -10,17 +10,27 @@ import breakpoints_classifier
 
 def process_transpositions(c):
     trp = rearrangements_type.check_transpositions(c)
-    for t in trp:
-        if t[0]:
-            t[0].print_out()
-        else:
-            print None
-        print '-'
-        if t[1]:
-            t[1].print_out()
-        else:
-            print None
-        print
+    this_trp = []
+    to_start = -1
+    to_end = -2
+    for e in trp:
+        if not e:
+            continue
+        this_prev = e[0]
+        this_trp.append(e[1])
+        this_next = e[2]
+        # start is the block before the trasposition
+        if not this_prev in map(lambda x: x[1], trp):
+            to_start = this_prev
+        if not this_next in map(lambda x: x[1], trp):
+            to_end = this_next
+        if to_start != -1 and to_end != -2:
+            print 'transposition'
+            for t in this_trp:
+                t.print_out()
+            to_start = -1
+            to_end = -2
+            this_trp = []
 
 
 def process_translocations(c):
