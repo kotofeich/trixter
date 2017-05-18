@@ -69,6 +69,7 @@ if __name__ == '__main__':
     type_group.add_argument('--report_transpositions', action='store_true', help='report transpositions in specie2 related to specie1')
     type_group.add_argument('--report_translocations', action='store_true', help='report translocations in specie2 related to specie1')
     type_group.add_argument('--report_reversals', action='store_true', help='report reversals in specie2 related to specie1')
+    type_group.add_argument('--report_reorganized_genome', action='store_true', help='print out genome of specie2 reordered according to the specie1')
     rearrangements_group.add_argument('--species', nargs=2, help='two species to evaluate rearrangements')
 
     breakpoints_group = parser.add_argument_group()
@@ -88,7 +89,7 @@ if __name__ == '__main__':
         else:
             breakpoints_classifier.run(blocks, False)
 
-    elif args.report_translocations or args.report_transpositions or args.report_reversals:
+    elif args.report_translocations or args.report_transpositions or args.report_reversals or args.report_reorganized_genome:
         if not args.species:
             print 'Choose species to find rearrangements --species'
             parser.print_help()
@@ -101,13 +102,16 @@ if __name__ == '__main__':
         entries2 = utils.get_specie_entries(blocks, args.species[1])
         specie2_rear = utils.reorder_specie(specie1, entries2, args.species[0], args.species[1])
         specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
-        for c in specie2_rear:
-            if args.report_transpositions:
-                process_transpositions(c)
-            if args.report_translocations:
-                process_translocations(c)
-            if args.report_reversals:
-                process_reversals(c)
+        if args.report_reorganized_genome:
+            utils.print_out_genome_thread(specie2_rear, blocks)
+        else:
+            for c in specie2_rear:
+                if args.report_transpositions:
+                    process_transpositions(c)
+                if args.report_translocations:
+                    process_translocations(c)
+                if args.report_reversals:
+                    process_reversals(c)
     elif args.print_genomes :
         for sp in args.print_genomes:
             entries = utils.get_specie_entries(blocks, sp)

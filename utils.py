@@ -75,16 +75,23 @@ def thread_specie_genome(specie_entries):
     return sorted_chromosomes
 
 
-def print_out_genome_thread(entries, path=None):
-    i = 0
+def get_ref_seq_id(block_id, target_seq_id, blocks):
+    the_block = filter(lambda x: x.id == block_id, blocks)
+    non_target_entries = filter(lambda x: x.seq_id != target_seq_id, the_block[0].entries)
+    non_target_seq_ids = set(map(lambda x: x.split('.')[1],map(lambda x: x.get_seq_id(), non_target_entries)))
+    if len(non_target_seq_ids) == 1:
+        return list(non_target_entries)[0].get_seq_id()
+    else:
+        raise Exception("can't distinguish ref seq id for block" + str(block_id))
+
+def print_out_genome_thread(entries, blocks, path=None):
     if path:
         f = open(path, 'w')
     for c in entries:
-        i += 1
         if path:
-            f.write(str(i) + '\n')
+            f.write(str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks)) + '\n')
         else:
-            print i
+            print str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks))
         for e in c:
             s = 'seq_id: ' + str(e.get_seq_id()) + ' block_id: ' + str(e.get_block_id()) + ' strand: ' \
                 + str(e.strand) + ' start: ' + str(e.get_start()) + ' end: ' + str(e.get_end())
