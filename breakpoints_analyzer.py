@@ -70,11 +70,13 @@ if __name__ == '__main__':
     type_group.add_argument('--report_translocations', action='store_true', help='report translocations in specie2 related to specie1')
     type_group.add_argument('--report_reversals', action='store_true', help='report reversals in specie2 related to specie1')
     type_group.add_argument('--report_reorganized_genome', action='store_true', help='print out genome of specie2 reordered according to the specie1')
+    type_group.add_argument('--report_breakpoints', action='store_true', help='output list of breakpoints in the specie1 genome related to specie2')
     rearrangements_group.add_argument('--species', nargs=2, help='two species to evaluate rearrangements')
 
     breakpoints_group = parser.add_argument_group()
     breakpoints_group.add_argument('--classify_breakpoints', action='store_true', help='find out which species contain breakpoint')
     breakpoints_group.add_argument('--print_table', action='store_true', help='not reporting themself but the list of species that contain it')
+
 
     io_group = parser.add_argument_group()
     io_group.add_argument('--print_genomes', nargs='+', help='prints out specified genomes')
@@ -89,7 +91,9 @@ if __name__ == '__main__':
         else:
             breakpoints_classifier.run(blocks, False)
 
-    elif args.report_translocations or args.report_transpositions or args.report_reversals or args.report_reorganized_genome:
+    elif args.report_translocations or args.report_transpositions or \
+            args.report_reversals or args.report_reorganized_genome or\
+                args.report_breakpoints:
         if not args.species:
             print 'Choose species to find rearrangements --species'
             parser.print_help()
@@ -104,6 +108,8 @@ if __name__ == '__main__':
         specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
         if args.report_reorganized_genome:
             utils.print_out_genome_thread(specie2_rear, blocks)
+        elif args.report_breakpoints:
+            utils.report_breakpoints(specie1, specie2_rear)
         else:
             for c in specie2_rear:
                 if args.report_transpositions:

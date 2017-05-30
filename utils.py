@@ -102,6 +102,19 @@ def print_out_genome_thread(entries, blocks, path=None):
     if path:
         f.close()
 
+def report_breakpoints(specie1, specie2_rear):
+    zipped_chromosomes = zip(specie1, specie2_rear)
+    zipped_chromosomes = map(lambda x:zip(x[0],x[1]), zipped_chromosomes)
+    for c in zipped_chromosomes:
+        for i in range(1,len(c)):
+            query_entry = c[i][1]
+            if query_entry.seq_id == c[i-1][1].seq_id:
+                continue
+            else:
+                target_entry = c[i][0]
+                print target_entry.seq_id+'\t'+str(c[i-1][0].end)+'\t'+str(target_entry.start)
+
+
 
 def group_by_ref(ref_genome, target_genome):
     target_genome_grouped = []
@@ -225,3 +238,4 @@ def find_next_block_in_specie(entry, specie):
                 return None
             return c[l + 1]
     raise Exception('No such block! ', entry.block_id)
+
