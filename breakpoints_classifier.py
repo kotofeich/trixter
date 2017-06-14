@@ -64,7 +64,7 @@ def build_neighbours(block_inds, index):
         neighbours.append(neighb[1])
     return dupls_num, entries_num, neighbours, species_status
 
-def process_at_index(index,ind,allowable,features,species_status,nodef,print_table):
+def process_at_index(index, ind, allowable, features, species_status, nodef, print_table):
     # beware of dupl!
     prev, next = index[ind][0]
     if prev in nodef and next in nodef:
