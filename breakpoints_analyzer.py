@@ -107,7 +107,7 @@ if __name__ == '__main__':
         specie2_rear = utils.reorder_specie(specie1, entries2, args.species[0], args.species[1])
         specie1,specie2_rear = utils.normalize(specie1, specie2_rear)
         if args.report_reorganized_genome:
-            utils.print_out_genome_thread(specie2_rear, blocks)
+            utils.print_out_genome_thread(specie2_rear, blocks, print_ref_id=True)
         elif args.report_breakpoints:
             utils.report_breakpoints(specie1, specie2_rear)
         else:
@@ -122,5 +122,5 @@ if __name__ == '__main__':
         for sp in args.print_genomes:
             entries = utils.get_specie_entries(blocks, sp)
             specie_genome = utils.thread_specie_genome(entries)
-            utils.print_out_genome_thread(specie_genome)
+            utils.print_out_genome_thread(specie_genome, blocks)
 

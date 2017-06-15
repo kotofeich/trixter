@@ -15,6 +15,8 @@ def intersect(entry, bed_entries):
 traverses blocks and collects all the entries
 related to the specie
 '''
+
+
 def get_specie_entries(blocks, specie):
     specie_entries = []
     for b in blocks:
@@ -23,6 +25,7 @@ def get_specie_entries(blocks, specie):
             if e.get_specie() == specie:
                 specie_entries.append(e)
     return specie_entries
+
 
 def reorder_specie(specie1, entries2, name1, name2):
     specie2_grouped = []
@@ -59,6 +62,7 @@ def reorder_specie(specie1, entries2, name1, name2):
         specie2_rear.append(list(itertools.chain(*e)))
     return specie2_rear
 
+
 def thread_specie_genome(specie_entries):
     genome = []
     chromosomes_names = set(map(lambda x: x.get_seq_id(), specie_entries))
@@ -78,20 +82,22 @@ def thread_specie_genome(specie_entries):
 def get_ref_seq_id(block_id, target_seq_id, blocks):
     the_block = filter(lambda x: x.id == block_id, blocks)
     non_target_entries = filter(lambda x: x.seq_id != target_seq_id, the_block[0].entries)
-    non_target_seq_ids = set(map(lambda x: x.split('.')[1],map(lambda x: x.get_seq_id(), non_target_entries)))
+    non_target_seq_ids = set(map(lambda x: x.split('.')[1], map(lambda x: x.get_seq_id(), non_target_entries)))
     if len(non_target_seq_ids) == 1:
         return list(non_target_entries)[0].get_seq_id()
     else:
         raise Exception("can't distinguish ref seq id for block" + str(block_id))
 
-def print_out_genome_thread(entries, blocks, path=None):
+
+def print_out_genome_thread(entries, blocks, print_ref_id=False, path=None):
     if path:
         f = open(path, 'w')
     for c in entries:
-        if path:
-            f.write(str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks)) + '\n')
-        else:
-            print str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks))
+        if print_ref_id :
+            if path:
+                f.write(str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks)) + '\n')
+            else:
+                print str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks))
         for e in c:
             s = 'seq_id: ' + str(e.get_seq_id()) + ' block_id: ' + str(e.get_block_id()) + ' strand: ' \
                 + str(e.strand) + ' start: ' + str(e.get_start()) + ' end: ' + str(e.get_end())
@@ -102,18 +108,18 @@ def print_out_genome_thread(entries, blocks, path=None):
     if path:
         f.close()
 
+
 def report_breakpoints(specie1, specie2_rear):
     zipped_chromosomes = zip(specie1, specie2_rear)
-    zipped_chromosomes = map(lambda x:zip(x[0],x[1]), zipped_chromosomes)
+    zipped_chromosomes = map(lambda x: zip(x[0], x[1]), zipped_chromosomes)
     for c in zipped_chromosomes:
-        for i in range(1,len(c)):
+        for i in range(1, len(c)):
             query_entry = c[i][1]
-            if query_entry.seq_id == c[i-1][1].seq_id:
+            if query_entry.seq_id == c[i - 1][1].seq_id:
                 continue
             else:
                 target_entry = c[i][0]
-                print target_entry.seq_id+'\t'+str(c[i-1][0].end)+'\t'+str(target_entry.start)
-
+                print target_entry.seq_id + '\t' + str(c[i - 1][0].end) + '\t' + str(target_entry.start)
 
 
 def group_by_ref(ref_genome, target_genome):
@@ -238,4 +244,3 @@ def find_next_block_in_specie(entry, specie):
                 return None
             return c[l + 1]
     raise Exception('No such block! ', entry.block_id)
-
