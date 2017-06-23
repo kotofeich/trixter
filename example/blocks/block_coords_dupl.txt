@@ -1,0 +1,41 @@
+Seq_id  Size    Description
+2202    80   FelisCatus.seq1
+2203    60   FelisCatus.seq2
+4496    70   AcinonyxJubatus.seq1
+4497    70   AcinonyxJubatus.seq2
+Block #5885
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq1  +       10  20  10
+AcinonyxJubatus.seq1  +       5   15   10
+--------------------------------------------------------------------------------
+Block #5886     
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq1  +       21  30  9
+AcinonyxJubatus.seq1  +       16   25   9
+--------------------------------------------------------------------------------
+Block #5887     
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq1  +       31  50  19
+FelisCatus.seq2  +       20  30  10 
+AcinonyxJubatus.seq1  +       26   45   19
+AcinonyxJubatus.seq2  +       20   30   10
+--------------------------------------------------------------------------------
+Block #5888     
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq1  +       51  63  12
+AcinonyxJubatus.seq1  +       46   58   12
+--------------------------------------------------------------------------------
+Block #5889     
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq1  +       64  75  11 
+AcinonyxJubatus.seq1  +       59   70   11
+--------------------------------------------------------------------------------
+Block #5890
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq2  +       1  19  19 
+AcinonyxJubatus.seq2  +       1 19   19
+--------------------------------------------------------------------------------
+Block #5891
+Seq_id  Strand  Start   End     Length
+FelisCatus.seq2  +       31  51  20 
+AcinonyxJubatus.seq2 +   31  51  20
