@@ -3,6 +3,7 @@
 import sys
 import os
 import itertools
+import argparse
 
 class TranslocationEntry :
     related_chr1 = None
@@ -20,7 +21,7 @@ class TranslocationEntry :
         self.blocks.append(x)
 
 
-def overlap_common_entries(entries) :
+def overlap_common_entries(entries, type) :
     all_blocks = map(lambda x: x.blocks, entries)
     all_blocks = set(itertools.chain(*all_blocks))
     entries_by_key_all = []
@@ -43,13 +44,13 @@ def overlap_common_entries(entries) :
         if len(x) < 2:
             continue
         i += 1
-        print 'translocation no.', i
+        print type + ' no.', i
         for y in x:
             print y.specie, y.related_chr1, y.related_chr2, y.blocks
         print
 
 
-def parse_translocation(dir_name):
+def parse_translocation(dir_name, type):
     summary = []
     for name in os.listdir(dir_name):
         file_name = os.path.join(dir_name, name)
@@ -62,12 +63,19 @@ def parse_translocation(dir_name):
                 line = line.strip()
                 if not line:
                     continue
-                if 'translocation:' in line:
+                if type in line:
                     if chr_name1 and chr_name2:
-                        chr_name1, chr_name2 = sorted([chr_name1, chr_name2])
+                        if not chr_name1:
+                            chr_name1 = chr_name2
+                        else:
+                            chr_name1, chr_name2 = sorted([chr_name1, chr_name2])
                         summary.append(TranslocationEntry(chr_name1, chr_name2, specie, related_blocks))
                         related_blocks = []
-                    chr_name1 = line.split("from chromosome ")[1]
+                    chr_name1 = line.split("from chromosome ")
+                    if len(chr_name1) > 1:
+                        chr_name1 = chr_name1[1]
+                    else:
+                        chr_name1 = None
                 elif 'seq_id: ' in line:
                     data = line.split('seq_id: ')[1]
                     data = data.split(' block_id: ')
@@ -76,10 +84,12 @@ def parse_translocation(dir_name):
                     b = b.split(' strand: ')[0]
                     related_blocks.append(int(b))
                     chr_name2 = chr_name2.split('.')[1]
-
+    return summary
 
 if __name__ == '__main__':
-    dir_name = sys.argv[1]
-
-    summary = parse_translocation()
-    overlap_common_entries(summary)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dir', required=True, help='file with rearrangements')
+    parser.add_argument('--type', required=True, help='translocation/transposition')
+    args = parser.parse_args()
+    summary = parse_translocation(args.dir, args.type)
+    overlap_common_entries(summary, args.type)
