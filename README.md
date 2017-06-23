@@ -56,7 +56,7 @@ The blocks file is parsed and the blocks comprising the specified specie chromos
 
 Example:
 
-    breakpoints_analyzer.py --print_out_genomes Cat --file blocks_coords.txt
+    breakpoints_analyzer.py --print_genomes Cat --file blocks_coords.txt
 
 ### Output
 
