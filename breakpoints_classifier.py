@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import utils
 import itertools
 from collections import Counter, defaultdict
