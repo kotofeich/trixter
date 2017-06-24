@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import model
 import itertools
 
@@ -5,7 +8,8 @@ import itertools
 def intersect(entry, bed_entries):
     intersected_bed_entries = []
     for b in bed_entries:
-        if (entry.get_specie() == b.genome or b.genome == '') and entry.get_chrom() == b.chrom:
+        if (entry.get_specie() == b.genome or b.genome == '') and \
+           entry.get_chrom() == b.chrom:
             if not (b.end < entry.start or entry.end < b.start):
                 intersected_bed_entries.append(b)
     return intersected_bed_entries
@@ -29,7 +33,8 @@ def get_specie_entries(blocks, specie):
 
 def reorder_specie(specie1, entries2, name1, name2):
     specie2_grouped = []
-    # group entries in specie2 according to the order of blocks on chromosomes in specie1
+    # group entries in specie2 according to the order of blocks on chromosomes
+    # in specie1
     visited_blocks = set()
     order = []
     for sp in specie1:
@@ -54,7 +59,8 @@ def reorder_specie(specie1, entries2, name1, name2):
             elif not c:
                 unpaired_entries.add(y)
                 print 'no such blocks ', y.block_id, 'in specie', name2
-                # now let's order the blocks that are duplicated on the same chromosome
+                # now let's order the blocks that are duplicated on the same
+                # chromosome
         for y in unpaired_entries:
             sp.remove(y)
     specie2_rear = []
@@ -64,7 +70,6 @@ def reorder_specie(specie1, entries2, name1, name2):
 
 
 def thread_specie_genome(specie_entries):
-    genome = []
     chromosomes_names = set(map(lambda x: x.get_seq_id(), specie_entries))
     chromosomes = []
     # group entries by chromosomes
@@ -81,26 +86,34 @@ def thread_specie_genome(specie_entries):
 
 def get_ref_seq_id(block_id, target_seq_id, blocks):
     the_block = filter(lambda x: x.id == block_id, blocks)
-    non_target_entries = filter(lambda x: x.seq_id != target_seq_id, the_block[0].entries)
-    non_target_seq_ids = set(map(lambda x: x.split('.')[1], map(lambda x: x.get_seq_id(), non_target_entries)))
+    non_target_entries = filter(lambda x: x.seq_id != target_seq_id,
+                                the_block[0].entries)
+    non_target_seq_ids = set(map(lambda x: x.split('.')[1],
+                                 map(lambda x: x.get_seq_id(),
+                                     non_target_entries)))
     if len(non_target_seq_ids) == 1:
         return list(non_target_entries)[0].get_seq_id()
     else:
-        raise Exception("can't distinguish ref seq id for block" + str(block_id))
+        raise Exception("can't distinguish ref seq id for block" +
+                        str(block_id))
 
 
 def print_out_genome_thread(entries, blocks, print_ref_id=False, path=None):
     if path:
         f = open(path, 'w')
     for c in entries:
-        if print_ref_id :
+        if print_ref_id:
             if path:
-                f.write(str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks)) + '\n')
+                f.write(str(get_ref_seq_id(c[0].get_block_id(),
+                                           c[0].get_seq_id(), blocks)) + '\n')
             else:
-                print str(get_ref_seq_id(c[0].get_block_id(), c[0].get_seq_id(), blocks))
+                print str(get_ref_seq_id(c[0].get_block_id(),
+                                         c[0].get_seq_id(), blocks))
         for e in c:
-            s = 'seq_id: ' + str(e.get_seq_id()) + ' block_id: ' + str(e.get_block_id()) + ' strand: ' \
-                + str(e.strand) + ' start: ' + str(e.get_start()) + ' end: ' + str(e.get_end())
+            s = 'seq_id: ' + str(e.get_seq_id()) + ' block_id: ' + \
+                    str(e.get_block_id()) + ' strand: ' + str(e.strand) + \
+                    ' start: ' + str(e.get_start()) + ' end: ' + \
+                    str(e.get_end())
             if path:
                 f.write(s + '\n')
             else:
@@ -119,7 +132,8 @@ def report_breakpoints(specie1, specie2_rear):
                 continue
             else:
                 target_entry = c[i][0]
-                print target_entry.seq_id + '\t' + str(c[i - 1][0].end) + '\t' + str(target_entry.start)
+                print target_entry.seq_id + '\t' + str(c[i - 1][0].end) + \
+                    '\t' + str(target_entry.start)
 
 
 def group_by_ref(ref_genome, target_genome):
@@ -132,7 +146,8 @@ def group_by_ref(ref_genome, target_genome):
         for y in sp:
             if y.get_block_id() in visited_blocks:
                 continue
-            c = filter(lambda x: x.get_block_id() == y.get_block_id(), list(itertools.chain(*target_genome)))
+            c = filter(lambda x: x.get_block_id() == y.get_block_id(),
+                       list(itertools.chain(*target_genome)))
             visited_blocks.add(y.get_block_id())
             if len(c) == 1:
                 target_genome_grouped[-1].append(c[0])
@@ -158,9 +173,10 @@ def get_neighbors(c, e):
     return (this_prev_blocks_id, this_next_blocks_id)
 
 
-# normalization means we revert all the negative-strand blocks of the chromosome in specie1
-# and change the strand of the corresponding block in specie2
-# this is needed in order to search for reversals only in specie2 related to specie1
+# normalization means we revert all the negative-strand blocks of the
+# chromosome in specie1 and change the strand of the corresponding block in
+# specie2 this is needed in order to search for reversals only in specie2
+# related to specie1
 def normalize(specie1, specie2):
     for i in range(len(specie1)):
         c1 = specie1[i]
@@ -195,8 +211,8 @@ def filter_unsplitted_chromosomes(blocks, count_chrs, sps):
         # also count duplications?
         # if so then only blocks when both chromosomes are split counted
         if len(upd_entries) >= len(sps) and len(upd_species) == len(sps):
-            # if so then counted also those blocks that partly split but in some
-            # species it can be the whole scaffold
+            # if so then counted also those blocks that partly split but in
+            # some species it can be the whole scaffold
             # if upd_entries:
             upd_blocks.append(model.Block(b.id, upd_entries))
     return upd_blocks
@@ -220,7 +236,8 @@ def filter_absent_species(blocks, sps):
 # there can be ambiguities in prev entries
 def find_prev_block_in_specie(entry, specie):
     for c in specie:
-        find = filter(lambda x: x.block_id == entry.block_id and x.start == entry.start, c)
+        find = filter(lambda x: x.block_id == entry.block_id and
+                      x.start == entry.start, c)
         if len(find) > 1:
             raise Exception('duplicated entry!')
         if find:
@@ -235,7 +252,8 @@ def find_prev_block_in_specie(entry, specie):
 # there can be ambiguities in next entries
 def find_next_block_in_specie(entry, specie):
     for c in specie:
-        find = filter(lambda x: x.block_id == entry.block_id and x.start == entry.start, c)
+        find = filter(lambda x: x.block_id == entry.block_id and
+                      x.start == entry.start, c)
         if len(find) > 1:
             raise Exception('duplicated entry!')
         if find:
