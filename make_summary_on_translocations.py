@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import sys
 import os
 import itertools
 import argparse
@@ -64,7 +63,7 @@ def parse_translocation(dir_name, type):
                 if not line:
                     continue
                 if type in line:
-                    if chr_name1 and chr_name2:
+                    if chr_name2:
                         if not chr_name1:
                             chr_name1 = chr_name2
                         else:
