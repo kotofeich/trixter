@@ -23,7 +23,7 @@ def get_blocks_ids(blocks):
     return set(map(lambda x: x.id, blocks))
 
 
-def create_indices(species, threaded_genomes):
+def create_indices(threaded_genomes):
     ind = defaultdict(list)
     for g in threaded_genomes.keys():
         chrs = threaded_genomes[g]
@@ -125,8 +125,8 @@ def process_block_neighborhood(neighbours, block_inds, species_status,
             return
         first_common = c[0][0]
         second_common = c[1][0]
-        nodef = set([-1, -2])
-        allowable = set([-1, -2, first_common, second_common])
+        nodef = {-1, -2}
+        allowable = {-1, -2, first_common, second_common}
         for ind in block_inds:
             process_at_index(index, ind, allowable, features, species_status,
                              nodef, print_table)
@@ -138,7 +138,7 @@ def run(blocks, print_table=False):
     for sp in species:
             entries = utils.get_specie_entries(blocks, sp)
             threaded_genomes[sp] = utils.thread_specie_genome(entries)
-    index = create_indices(species, threaded_genomes)
+    index = create_indices(threaded_genomes)
     blocks_ids = get_blocks_ids(blocks)
     blocks_num = 0
 
@@ -154,7 +154,7 @@ def run(blocks, print_table=False):
         if not print_table:
             print 'block_id:', b
             for ind in block_inds:
-                print index[ind]
+                print ind[1], index[ind]
         dupls_num, entries_num, neighbours, species_status = build_neighbours(
             block_inds, index)
         process_block_neighborhood(neighbours, block_inds, species_status,
