@@ -55,6 +55,8 @@ def overlap_common_entries(entries, type):
 def parse_translocation(dir_name, type):
     summary = []
     for name in os.listdir(dir_name):
+        if (name.split('.')[-1] != 'txt') :
+            continue
         file_name = os.path.join(dir_name, name)
         with open(file_name) as f:
             specie = f.readline().strip()
