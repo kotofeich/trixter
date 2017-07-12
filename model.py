@@ -63,9 +63,9 @@ class Entry:
         return True
 
     def print_out(self):
-        print 'seq_id:', self.seq_id, 'block_id:', self.block_id,
-        'strand:', self.strand, 'start:', self.start, 'end:', self.end,
-        'length:', self.length
+        print 'seq_id:', self.seq_id, 'block_id:', self.block_id,\
+            'strand:', self.strand, 'start:', self.start, 'end:', self.end,\
+            'length:', self.length
 
     def print_out_short(self):
         print ' '.join(map(str, [self.get_seq_id(), self.start, self.end]))
