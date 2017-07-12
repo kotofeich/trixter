@@ -128,7 +128,8 @@ def report_breakpoints(specie1, specie2_rear):
     for c in zipped_chromosomes:
         for i in range(1, len(c)):
             query_entry = c[i][1]
-            if query_entry.seq_id == c[i - 1][1].seq_id:
+            if query_entry.seq_id == c[i - 1][1].seq_id and \
+                query_entry.block_id == c[i - 1][1].block_id:
                 continue
             else:
                 target_entry = c[i][0]
